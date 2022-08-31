@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"mime"
+	"net"
 	"net/http"
 	"strings"
 
@@ -16,7 +17,10 @@ import (
 )
 
 const (
-	formatAddress = "%s:%d"
+	defaultProtocol = "http"
+	formatAddress   = "%s:%d"
+	formatURL       = "%s::/%s"
+	defaultPage     = "page.html"
 )
 
 var (
@@ -25,7 +29,7 @@ var (
 )
 
 func Start() {
-	address = fmt.Sprintf(formatAddress, "", config.Data.Web.Port)
+	address = fmt.Sprintf(formatAddress, GetLocalIp(), config.Data.Web.Port)
 	gin.SetMode(gin.ReleaseMode)
 	_ = mime.AddExtensionType(".js", "application/javascript")
 
@@ -35,12 +39,12 @@ func Start() {
 	router.StaticFS("/css", http.Dir("web/static/css"))
 	router.StaticFS("/js", http.Dir("web/static/js"))
 	router.StaticFS("/img", http.Dir("web/static/img"))
-	router.StaticFile("/page.html", "web/static/page.html")
+	router.StaticFile("/"+defaultPage, "web/static/"+defaultPage)
 	router.StaticFile("/favicon.ico", "web/static/favicon.ico")
 
 	router.Use(CORSMiddleware())
 
-	fmt.Printf("[address] %v", addressFormat(address))
+	fmt.Printf("[url] %v", urlFormat(address))
 
 	err := router.Run(address)
 	if err != nil {
@@ -48,10 +52,31 @@ func Start() {
 	}
 }
 
+func GetLocalIp() string {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		return "localhost"
+	}
+	defer conn.Close()
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+
+	return localAddr.IP.String()
+}
+
 func addressFormat(a string) string {
 	s := strings.Split(a, ":")
 	if s[0] == "" {
-		s[0] = "localhost"
+		s[0] = GetLocalIp()
 	}
 	return strings.Join(s[:], ":")
+}
+
+func urlFormat(a string) string {
+	s := fmt.Sprintf(formatURL, defaultProtocol, a)
+	if len(defaultPage) > 0 {
+		s += "/" + defaultPage
+	}
+
+	return s
 }
