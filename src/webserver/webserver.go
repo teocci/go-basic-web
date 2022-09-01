@@ -19,7 +19,7 @@ import (
 const (
 	defaultProtocol = "http"
 	formatAddress   = "%s:%d"
-	formatURL       = "%s::/%s"
+	formatURL       = "%s://%s/%s"
 	defaultPage     = "page.html"
 )
 
@@ -44,7 +44,7 @@ func Start() {
 
 	router.Use(CORSMiddleware())
 
-	fmt.Printf("[url] %v", urlFormat(address))
+	fmt.Println("[url]", urlFormat(address))
 
 	err := router.Run(address)
 	if err != nil {
@@ -73,10 +73,7 @@ func addressFormat(a string) string {
 }
 
 func urlFormat(a string) string {
-	s := fmt.Sprintf(formatURL, defaultProtocol, a)
-	if len(defaultPage) > 0 {
-		s += "/" + defaultPage
-	}
+	s := fmt.Sprintf(formatURL, defaultProtocol, a, defaultPage)
 
 	return s
 }
