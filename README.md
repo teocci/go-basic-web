@@ -1,6 +1,6 @@
 ## go-basic-web [![Go Reference][1]][2]
 
-`go-basic-web-sample` is an open-source sample using gin-gonic as a webserver as basic clean project.
+`go-basic-web` is an open-source sample using gin-gonic as a webserver as basic clean project.
 
 ## Disclaimer
 > This tool is limited to security research only, and the user assumes all legal and related responsibilities arising from its use! The author assumes no legal responsibility!

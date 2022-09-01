@@ -17,10 +17,15 @@ import (
 )
 
 const (
-	defaultProtocol = "http"
-	formatAddress   = "%s:%d"
-	formatURL       = "%s://%s/%s"
-	defaultPage     = "page.html"
+	defaultProtocol        = "http"
+	defaultPage            = "page.html"
+	defaultFaviconRoute    = "/favicon.ico"
+	defaultFaviconFilePath = "web/static/favicon.ico"
+
+	formatAddress        = "%s:%d"
+	formatURL            = "%s://%s/%s"
+	formatRelativePath   = "/%s"
+	formatStaticFilePath = "web/static/%s"
 )
 
 var (
@@ -36,11 +41,15 @@ func Start() {
 	router := gin.Default()
 	router.LoadHTMLGlob("web/templates/*")
 
+	indexRoute := fmt.Sprintf(formatRelativePath, defaultPage)
+	indexFilePath := fmt.Sprintf(formatStaticFilePath, defaultPage)
+
 	router.StaticFS("/css", http.Dir("web/static/css"))
 	router.StaticFS("/js", http.Dir("web/static/js"))
 	router.StaticFS("/img", http.Dir("web/static/img"))
-	router.StaticFile("/"+defaultPage, "web/static/"+defaultPage)
-	router.StaticFile("/favicon.ico", "web/static/favicon.ico")
+
+	router.StaticFile(indexRoute, indexFilePath)
+	router.StaticFile(defaultFaviconRoute, defaultFaviconFilePath)
 
 	router.Use(CORSMiddleware())
 
